@@ -59,6 +59,7 @@ def loadConfig():
                     SecretId=secretConfig['secret']
                 )
                 secret = json.loads(secretRaw['SecretString'])
+
                 cfg['splunk']['username'] = secret[secretConfig['username']]
                 cfg['splunk']['password'] = secret[secretConfig['password']]
 

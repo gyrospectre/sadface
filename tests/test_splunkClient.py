@@ -34,10 +34,9 @@ BAD_SCONFIG = {
 }
 
 class TestInitClient(unittest.TestCase):
-    def test_initClient(self):
-        self.listSearches = SplunkClient.listSearches
-        SplunkClient.listSearches = MagicMock()
 
+    @patch.object(splunkClient.SplunkClient, 'listSearches')
+    def test_initClient(self, mk_list):
         client = SplunkClient(
             host="splunk.internal",
             port=8089,
@@ -45,31 +44,24 @@ class TestInitClient(unittest.TestCase):
             password="TeenWolf2021"
         )
         assert type(client) == SplunkClient
-        SplunkClient.listSearches = self.listSearches
 
+    @patch.object(splunkClient.SplunkClient, 'listSearches')
+    def test_testConnSucceed(self, mk_list):
+        assert SplunkClient._testConnection(SplunkClient) == None
 
-    def test_testConnSucceed(self):
-        self.listSearches = SplunkClient.listSearches
-        SplunkClient.listSearches = MagicMock(return_value=None)
-        result = SplunkClient._testConnection(SplunkClient)
-
-        assert result == None
-        SplunkClient.listSearches = self.listSearches
-
-    def test_testConnFail(self):
-        self.listSearches = SplunkClient.listSearches
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        SplunkClient.listSearches = MagicMock(side_effect=SplunkGetFailed)
-
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    @patch.object(splunkClient.SplunkClient, 'listSearches')
+    def test_testConnFail(self, mk_list, mk_init):
+        mk_init.return_value = None
+        mk_list.side_effect = SplunkGetFailed
         client = SplunkClient()
 
-        with self.assertRaises(
-            (SplunkConnectFailed)
-        ):
+        with self.assertRaises(SplunkConnectFailed):
             client._testConnection()
-        SplunkClient.listSearches = self.listSearches
 
 class TestMapActions(unittest.TestCase):
+
+    @patch.object(splunkClient.SplunkClient, '__init__')
     @params(
         [{'Add to Triggered Alerts': None}],
         [{'OpsGenie': None}],
@@ -82,8 +74,8 @@ class TestMapActions(unittest.TestCase):
             }
         ]
     )
-    def test_mapActionsSucceed(self, actionList):
-        SplunkClient.__init__ = MagicMock(return_value=None)
+    def test_mapActionsSucceed(self, actionList, mk_init):
+        mk_init.return_value = None
 
         client = SplunkClient()
         result = client._mapActions(actionList)
