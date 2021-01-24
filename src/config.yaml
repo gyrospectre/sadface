@@ -1,0 +1,32 @@
+general:
+  # Produce a warning at the end of each run, listing
+  # any searches not managed by code.
+  warn_unmanaged: true
+  # List of apps for which SAD should remove any non-managed
+  # searches. If an app is not listed, these searches will be
+  # left as is.
+  remove_unmanaged:
+    - splunk_enterprise_on_docker
+splunk:
+  host: localhost
+  port: 8089
+  # Set to false to ignore HTTPS validation errors.
+  verify: false
+  secrets:
+    # How SAD should try to grab secrets for Splunk. We try
+    # from the top, attempting to get the required details from
+    # that location as specified in the corresponding stanza. If
+    # a method fails, we'll move onto the next. Leave a method out
+    # if you never want it used. 
+    order:
+      - secrets_manager
+      - env_vars
+    env_vars:
+      # Get secrets from environment variables
+      username: SPLUNK_USER
+      password: SPLUNK_PASS
+    secrets_manager:
+      # Get secrets from AWS secrets manager
+      secret: splunk
+      username: user
+      password: pass

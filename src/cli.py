@@ -1,0 +1,43 @@
+import argparse
+
+
+def banner():
+    print('''
+                       ___ .-.                          ___
+                      (   )    \                       (   )
+    .--.    .---.   .-.| || .`. ; .---.   .--.    .--.  | |
+  /  _  \  / .-, \ /   \ || |(___) .-, \ /    \  /    \ | |
+ . .' `. ;(__) ; ||  .-. || |_  (__) ; ||  .-. ;|  .-. ;| |
+ | '   | |  .'`  || |  | (   __)  .'`  ||  |(___)  | | || |
+ _\_`.(___)/ .'| || |  | || |    / .'| ||  |    |  |/  || |
+(   ). '. | /  | || |  | || |   | /  | ||  | ___|  ' _.'| |
+ | |  `\ |; |  ; || '  | || |   ; |  ; ||  '(   )  .'.-.|_|
+ ; '._,' '' `-'  |' `-'  /| |   ' `-'  |'  `-' |'  `-' /.-.
+  '.___.' `.__.'_. `.__,'(___)  `.__.'_. `.__,'  `.__.'(   )
+                                                        '-'
+    ''')
+
+
+def parseArgs(commands):
+    parser = argparse.ArgumentParser(
+        description='Splunk Automated Deployment Function '
+                    'Avoids Content Errors'
+    )
+    parser.add_argument(
+        'command',
+        help='The command to execute.',
+        type=str,
+        choices=commands
+    )
+    parser.add_argument(
+        '--debug',
+        help='Enable debug, for verbose logging.',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--nojson',
+        help='Disable JSON logging. Easier to read from the CLI!',
+        action='store_true'
+    )
+
+    return parser.parse_args()

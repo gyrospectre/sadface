@@ -1,0 +1,5 @@
+[flake8]
+exclude = .git,.aws-sam
+ignore =
+    # W605 invalid escape sequence
+    W605

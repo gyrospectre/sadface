@@ -1,0 +1,84 @@
+{
+    "general": {
+        "required": true,
+        "type": "dict",
+        "schema": {
+            "warn_unmanaged": {
+                "required": true,
+                "type": "boolean"
+            },
+            "remove_unmanaged": {
+                "required": true,
+                "type": "list",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "splunk": {
+        "required": true,
+        "type": "dict",
+        "schema": {
+            "host": {
+                "required": true,
+                "type": "string"
+            },
+            "port": {
+                "required": true,
+                "type": "integer"
+            },
+            "verify": {
+                "required": true,
+                "type": "boolean"
+            },
+            "secrets": {
+                "required": true,
+                "type": "dict",
+                "schema": {
+                    "order": {
+                        "required": true,
+                        "type": "list",
+                        "schema": {
+                            "type": "string",
+                            "allowed": [
+                                "secrets_manager",
+                                "env_vars"
+                            ]
+                        }
+                    },
+                    "env_vars": {
+                        "required": false,
+                        "schema": {
+                            "username": {
+                                "required": true,
+                                "type": "string"
+                            },
+                            "password": {
+                                "required": true,
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "secrets_manager": {
+                        "required": false,
+                        "schema": {
+                            "secret": {
+                                "required": true,
+                                "type": "string"
+                            },
+                            "username": {
+                                "required": true,
+                                "type": "string"
+                            },
+                            "password": {
+                                "required": true,
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,22 @@
+> class SplunkUpdateFailed(Exception):
+>     pass
+  
+  
+> class SplunkGetFailed(Exception):
+>     pass
+  
+  
+> class SplunkValidateFailed(Exception):
+>     pass
+  
+  
+> class SplunkConnectFailed(Exception):
+>     pass
+  
+  
+> class ConfigValidateFailed(Exception):
+>     pass
+  
+  
+> class ConfigLoadSecretsFailed(Exception):
+>     pass

@@ -1,0 +1,6 @@
+> from nose2.tools import params
+> from src.sadface import lambda_handler
+  
+! @params("Sir Bedevere", "Miss Islington", "Duck")
+! def test_is_knight(value):
+!     assert value.startswith('Sir')

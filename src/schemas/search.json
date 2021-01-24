@@ -1,0 +1,143 @@
+{
+    "description": {
+        "required": true,
+        "type": "string",
+        "minlength": 10,
+        "maxlength": 100
+    },
+    "lookback": {
+        "required": true,
+        "type": "string",
+        "regex": "^-\\d{1,3}((s|sec|secs|second|seconds)|(m|min|minute|minutes)|(h|hr|hrs|hour|hours)|(d|day|days)|(w|week|weeks)|(mon|month|months)|(q|qtr|qtrs|quarter|quarters)|(y|yr|yrs|year|years))((\\@(s|sec|secs|second|seconds|m|min|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks|mon|month|months|q|qtr|qtrs|quarter|quarters|y|yr|yrs|year|years))?)$"
+    },
+    "disabled": {
+        "required": false,
+        "type": "boolean"
+    },
+    "search": {
+        "required": true,
+        "type": "string"
+    },
+    "cron_schedule": {
+        "required": true,
+        "type": "string",
+        "regex": "^(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?))(,(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?)))*\\s(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?))(,(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?)))*\\s(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?))(,(((\\*|(\\d\\d?))(\/\\d\\d?)?)|(\\d\\d?\\-\\d\\d?)))*\\s(\\?|(((\\*|(\\d\\d?L?))(\/\\d\\d?)?)|(\\d\\d?L?\\-\\d\\d?L?)|L|(\\d\\d?W))(,(((\\*|(\\d\\d?L?))(\/\\d\\d?)?)|(\\d\\d?L?\\-\\d\\d?L?)|L|(\\d\\d?W)))*)*\\s\\*$"
+    },
+    "severity": {
+        "required": true,
+        "type": "string",
+        "allowed": [
+            "Info",
+            "Low",
+            "Medium",
+            "High",
+            "Critical"
+        ]
+    },
+    "actions": {
+        "required": true,
+        "type": "list",
+        "empty": false,
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "Add to Triggered Alerts": {
+                    "required": false,
+                    "nullable": true,
+                    "allowed": [
+                        ""
+                    ]
+                },
+                "OpsGenie": {
+                    "required": false,
+                    "nullable": true,
+                    "allowed": [
+                        ""
+                    ]
+                },
+                "Send email": {
+                    "required": false,
+                    "type": "dict",
+                    "schema": {
+                        "To": {
+                            "type": "string",
+                            "maxlength": 100
+                        },
+                        "Priority": {
+                            "type": "string",
+                            "allowed": [
+                                "Highest",
+                                "High",
+                                "Normal",
+                                "Low",
+                                "Lowest"
+                            ]
+                        },
+                        "Subject": {
+                            "type": "string",
+                            "maxlength": 100
+                        },
+                        "Message": {
+                            "type": "string",
+                            "maxlength": 100
+                        },
+                        "Include": {
+                            "type": "list",
+                            "allowed": [
+                                "Link to Alert",
+                                "Link to Results",
+                                "Search String",
+                                "Inline Table",
+                                "Inline Raw",
+                                "Inline CSV",
+                                "Trigger Condition",
+                                "Attach CSV",
+                                "Trigger Time",
+                                "Attach PDF",
+                                "Allow Empty Attachment"
+                            ]
+                        },
+                        "Type": {
+                            "type": "string",
+                            "allowed": [
+                                "HTML",
+                                "Plain"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "cyber": {
+        "required": false,
+        "type": "dict",
+        "schema": {
+            "tactic": {
+                "required": true,
+                "type": "string",
+                "allowed": [
+                    "Reconnaissance",
+                    "Resource Development",
+                    "Initial Access",
+                    "Execution",
+                    "Persistence",
+                    "Privilege Escalation",
+                    "Defense Evasion",
+                    "Credential Access",
+                    "Discovery",
+                    "Lateral Movement",
+                    "Collection",
+                    "Command and Control",
+                    "Exfiltration",
+                    "Impact"
+                ]
+            },
+            "technique": {
+                "required": true,
+                "type": "string",
+                "regex": "^T\\d{4}$"        
+            }
+        }
+    }
+}

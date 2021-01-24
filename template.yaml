@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sad. Automate deployment of Splunk Content
+
+Globals:
+  Function:
+    Timeout: 15
+
+Resources:
+  SplunkDeploy:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: sad.lambda_handler
+      Runtime: python3.8
+      MemorySize: 128
+      Policies:
+        - 
+          Version: '2012-10-17'
+          Statement:
+            - 
+              Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: arn:aws:secretsmanager:ap-southeast-2:752524387579:secret:splunk*
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            # Every day at 2300h UTC, 9am AEST
+            Schedule: cron(0 23 * * ? *)

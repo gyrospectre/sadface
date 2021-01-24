@@ -1,0 +1,104 @@
+import unittest
+import json
+
+from splunkClient import SplunkClient
+
+from exceptions import ConfigValidateFailed, SplunkConnectFailed
+from exceptions import SplunkGetFailed
+
+from unittest.mock import MagicMock, patch
+
+from nose2.tools import params
+
+
+class TestInitClient(unittest.TestCase):
+    def setUp(self):
+        self.SplunkClient = SplunkClient
+
+    def tearDown(self):
+        SplunkClient = self.SplunkClient
+
+    def test_initClient(self):
+        SplunkClient.listSearches = MagicMock()
+
+        client = SplunkClient(
+            host="splunk.internal",
+            port=8089,
+            username="michael.j.fox",
+            password="TeenWolf2021"
+        )
+
+        assert type(client) == SplunkClient
+
+    def test_testConnSucceed(self):
+        SplunkClient.listSearches = MagicMock(return_value=None)
+        result = SplunkClient._testConnection(SplunkClient)
+
+        assert result == None
+
+    def test_testConnFail(self):
+        SplunkClient.__init__ = MagicMock(return_value=None)
+        SplunkClient.listSearches = MagicMock(side_effect=SplunkGetFailed)
+
+        client = SplunkClient()
+
+        with self.assertRaises(
+            (SplunkConnectFailed)
+        ):
+            client._testConnection()
+
+
+class TestMapActions(unittest.TestCase):
+    def setUp(self):
+        self.SplunkClient = SplunkClient
+
+    def tearDown(self):
+        SplunkClient = self.SplunkClient
+
+    @params(
+        [{'Add to Triggered Alerts': None}],
+        [{'OpsGenie': None}],
+        [
+            {
+                'Send email': {
+                    'To': 'test@test.com',
+                    'Include': []
+                }
+            }
+        ]
+    )
+    def test_mapActionsSucceed(self, actionList):
+        localSC = SplunkClient
+        localSC.__init__ = MagicMock(return_value=None)
+
+        client = localSC()
+        result = client._mapActions(actionList)
+        localSC.__init__.reset_mock(return_value=True, side_effect=True)
+
+        assert type(result) == dict and result != {}
+
+    @params(
+        [{'Bad Action': None}],
+        [{'Send email': None}]
+    )
+    def test_mapActionsFail(self, actionList):
+        localSC = SplunkClient
+
+        localSC.__init__ = MagicMock(return_value=None)
+        client = localSC()
+        localSC.__init__.reset_mock(return_value=True, side_effect=True)
+
+        with self.assertRaises(
+            (ConfigValidateFailed)
+        ):
+            client._mapActions(actionList)
+
+class TestSearchExists(unittest.TestCase):
+    def test_searchExists(self):
+        print(SplunkClient)
+        #SplunkClient.listSearches = MagicMock(return_value=None)
+        client = SplunkClient(
+        )
+
+        client._searchExists(searchName='test', app='test')
+

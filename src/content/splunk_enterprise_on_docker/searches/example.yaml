@@ -1,0 +1,33 @@
+Example Search:
+  description: Example with all values set.
+  disabled: false
+  lookback: -1h
+  search: >-
+    index=main
+    | stats count by index
+  cron_schedule: '*/5 * * * *'
+  severity: Critical
+  actions:
+    - Add to Triggered Alerts:
+    - OpsGenie:
+    - Send email:
+        To: me@me.com
+        Priority: High
+        Subject: Blah
+        Message: Blah blah!
+        Include:
+          - Link to Alert
+          - Link to Results
+          - Search String
+          - Inline Table
+          - Inline Raw
+          - Inline CSV
+          - Trigger Condition
+          - Attach CSV
+          - Trigger Time
+          - Attach PDF
+          - Allow Empty Attachment
+        Type: Plain
+  cyber:
+    technique: T1000
+    tactic: Impact
