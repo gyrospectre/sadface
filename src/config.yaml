@@ -2,7 +2,7 @@ general:
   # Produce a warning at the end of each run, listing
   # any searches not managed by code.
   warn_unmanaged: true
-  # List of apps for which SAD should remove any non-managed
+  # List of apps for which SADFACE should remove any non-managed
   # searches. If an app is not listed, these searches will be
   # left as is.
   remove_unmanaged:
@@ -13,7 +13,7 @@ splunk:
   # Set to false to ignore HTTPS validation errors.
   verify: false
   secrets:
-    # How SAD should try to grab secrets for Splunk. We try
+    # How SADFACE should try to grab secrets for Splunk. We try
     # from the top, attempting to get the required details from
     # that location as specified in the corresponding stanza. If
     # a method fails, we'll move onto the next. Leave a method out

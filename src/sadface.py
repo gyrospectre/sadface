@@ -126,6 +126,7 @@ def deploy():
 
                 searchconfig.update(details)
                 result = splunk.deploySearch(app, searchname, searchconfig)
+
                 if result == 200:
                     prefix = 'updated'
                 else:
@@ -155,6 +156,7 @@ def deploy():
                         searchlist
                     )
                 )
+
             if app in config['general']['remove_unmanaged']:
                 for search in searchlist:
                     try:

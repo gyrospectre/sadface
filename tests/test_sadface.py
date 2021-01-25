@@ -26,9 +26,9 @@ TEST_SEARCH = {
     }
 }
 
-GOOD_CONFIG = {
+GOOD_CONFIG_SM = {
     'general': {
-        'remove_unmanaged': ['splunk_enterprise_on_docker'],
+        'remove_unmanaged': ['testapp'],
         'warn_unmanaged': True
     },
     'splunk': {
@@ -39,6 +39,25 @@ GOOD_CONFIG = {
             'order': ['secrets_manager'],
             'secrets_manager': {
                 'secret': 'dummy',
+                'username': 'user',
+                'password': 'pass'
+            }
+        }
+    }
+}
+
+GOOD_CONFIG_ENV = {
+    'general': {
+        'remove_unmanaged': ['testapp'],
+        'warn_unmanaged': True
+    },
+    'splunk': {
+        'host': 'localhost',
+        'port': 8089,
+        'verify': False,
+        'secrets': {
+            'order': ['env_vars'],
+            'env_vars': {
                 'username': 'user',
                 'password': 'pass'
             }
@@ -60,25 +79,43 @@ class TestSadFace(unittest.TestCase):
         
         assert sadface.validate() == True
 
-    @patch.object(sys, 'argv', ['sadface.py','deploy'])
     @patch.object(sadface, 'validator')
     @patch.object(sadface, 'boto3')
     @patch.object(sadface, 'json')
     @patch.object(sadface, 'benedict')
     def test_loadConfigOK(self, mk_benedict, mk_json, mk_boto, mk_valid):
-        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG)
+        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG_SM)
         mk_json.loads = MagicMock(return_value=SECRETS_MGR_RESPONSE)
         mk_valid.validateConfig = MagicMock()
 
-        assert sadface.loadConfig() == GOOD_CONFIG
+        assert sadface.loadConfig() == GOOD_CONFIG_SM
 
-    @patch.object(sys, 'argv', ['sadface.py','deploy'])
+    @patch.object(sadface, 'os')
+    @patch.object(sadface, 'validator')
+    @patch.object(sadface, 'benedict')
+    def test_loadConfigOKEnv(self, mk_benedict, mk_valid, mk_os):
+        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG_ENV)
+        mk_valid.validateConfig = MagicMock()
+
+        assert sadface.loadConfig() == GOOD_CONFIG_ENV
+
+    @patch.object(sadface, 'os')
+    @patch.object(sadface, 'validator')
+    @patch.object(sadface, 'benedict')
+    def test_loadConfigFailedEnv(self, mk_benedict, mk_valid, mk_os):
+        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG_ENV)
+        mk_valid.validateConfig = MagicMock()
+        mk_os.getenv.side_effect = Exception()
+
+        with self.assertRaises(ConfigLoadSecretsFailed):
+            sadface.loadConfig()
+
     @patch.object(sadface, 'validator')
     @patch.object(sadface, 'boto3')
     @patch.object(sadface, 'json')
     @patch.object(sadface, 'benedict')
     def test_loadConfigSMfail(self, mk_benedict, mk_json, mk_boto, mk_valid):
-        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG)
+        mk_benedict.from_yaml = MagicMock(return_value=GOOD_CONFIG_SM)
         mk_json.loads = MagicMock(return_value=SECRETS_MGR_RESPONSE)
         mk_boto.client.side_effect = Exception
         mk_valid.validateConfig = MagicMock()
@@ -96,7 +133,25 @@ class TestSadFace(unittest.TestCase):
         mk_glob.glob = MagicMock(return_value=['testfile'])
         mk_benedict.from_yaml = MagicMock(return_value=TEST_SEARCH)
 
-        print(sadface.deploy())
+        assert sadface.deploy() == None
+
+    @patch.object(sadface, 'os')
+    @patch.object(sadface, 'glob')
+    @patch.object(sadface, 'benedict')
+    @patch.object(sadface.SplunkClient, '__init__')
+    @patch.object(sadface.SplunkClient, 'listSearches')
+    @patch.object(sadface.SplunkClient, 'deploySearch')
+    @patch.object(sadface, 'loadConfig')
+    def test_deployExisting(self, mk_ldcfg, mk_ds, mk_list, mk_splunk, mk_benedict, mk_glob, mk_os):
+        mk_ldcfg.return_value = GOOD_CONFIG_SM
+        mk_splunk.return_value = None
+        mk_list.return_value = ['Something else', 'Test Search']
+        mk_os.listdir = MagicMock(return_value=['testapp'])
+        mk_glob.glob = MagicMock(return_value=['testfile'])
+        mk_benedict.from_yaml = MagicMock(return_value=TEST_SEARCH)
+        mk_ds.return_value = 200
+
+        assert sadface.deploy() == None
 
     @patch.object(sadface, 'deploy')
     @patch.object(sadface, 'loadConfig')
@@ -116,3 +171,11 @@ class TestSadFace(unittest.TestCase):
         result = sadface.lambda_handler({'debug': True}, {})
         assert result['statusCode'] == 500
 
+    @patch.object(sadface, 'os')
+    @patch.object(sadface, 'glob')
+    @patch.object(sadface, 'benedict')
+    @patch.object(sadface, 'SplunkClient')
+    @patch.object(sadface, 'loadConfig')
+    @patch.object(sys, 'argv', ['sadface.py','deploy', '--debug'])
+    def test_deployCLI(self, mk_ldcfg, mk_splunk, mk_benedict, mk_glob, mk_os):
+        assert sadface.main() == None

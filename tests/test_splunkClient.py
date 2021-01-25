@@ -61,7 +61,6 @@ class TestInitClient(unittest.TestCase):
 
 class TestMapActions(unittest.TestCase):
 
-    @patch.object(splunkClient.SplunkClient, '__init__')
     @params(
         [{'Add to Triggered Alerts': None}],
         [{'OpsGenie': None}],
@@ -74,10 +73,11 @@ class TestMapActions(unittest.TestCase):
             }
         ]
     )
+    @patch.object(splunkClient.SplunkClient, '__init__')
     def test_mapActionsSucceed(self, actionList, mk_init):
         mk_init.return_value = None
 
-        client = SplunkClient()
+        client = splunkClient.SplunkClient()
         result = client._mapActions(actionList)
 
         assert type(result) == dict and result != {}
@@ -100,8 +100,9 @@ class TestMapActions(unittest.TestCase):
             }
         ]
     )
-    def test_mapActionsEmailSucceed(self, actionList):
-        SplunkClient.__init__ = MagicMock(return_value=None)
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_mapActionsEmailSucceed(self, actionList, mk_init):
+        mk_init.return_value=None
 
         client = SplunkClient()
         result = client._mapActions(actionList)
@@ -132,8 +133,9 @@ class TestMapActions(unittest.TestCase):
         [{'Bad Action': None}],
         [{'Send email': None}]
     )
-    def test_mapActionsFail(self, actionList):
-        SplunkClient.__init__ = MagicMock(return_value=None)
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_mapActionsFail(self, actionList, mk_init):
+        mk_init.return_value = None
         client = SplunkClient()
 
         with self.assertRaises(
@@ -151,8 +153,9 @@ class TestMapActions(unittest.TestCase):
             {'OpsGenie': None}
         ]
     )
-    def test_mapMultipleActions(self, actionList):
-        SplunkClient.__init__ = MagicMock(return_value=None)
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_mapMultipleActions(self, actionList, mk_init):
+        mk_init.return_value = None
         client = SplunkClient()
         result = client._mapActions(actionList)
 
@@ -194,10 +197,10 @@ class TestSplunkAPI(unittest.TestCase):
         }'''
         status_code = 0
 
-    def test_searchExists(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_searchExists(self, mk_init, mk_req):
+        mk_init.return_value = None
 
         client = SplunkClient()
         client._baseUrl = ''
@@ -206,12 +209,10 @@ class TestSplunkAPI(unittest.TestCase):
 
         client._searchExists(searchName='test', app='test')
 
-        splunkClient.requests = self.requests
-
-    def test_deployNewSearch(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_deployNewSearch(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.post.return_value = r
@@ -225,12 +226,10 @@ class TestSplunkAPI(unittest.TestCase):
         
         client.deploySearch(searchName='test', app='test', searchConfig=VALID_SCONFIG)
 
-        splunkClient.requests = self.requests
-
-    def test_deployFailed(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_deployFailed(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 404
         splunkClient.requests.post.return_value = r
@@ -245,12 +244,10 @@ class TestSplunkAPI(unittest.TestCase):
         with self.assertRaises(SplunkUpdateFailed):
             client.deploySearch(searchName='test', app='test', searchConfig=VALID_SCONFIG)
 
-        splunkClient.requests = self.requests
-
-    def test_updateSearch(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_updateSearch(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.post.return_value = r
@@ -264,12 +261,10 @@ class TestSplunkAPI(unittest.TestCase):
         
         client.deploySearch(searchName='test', app='test', searchConfig=VALID_SCONFIG)
 
-        splunkClient.requests = self.requests
-
-    def test_validateSuccess(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateSuccess(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.get.return_value = r
@@ -285,12 +280,10 @@ class TestSplunkAPI(unittest.TestCase):
         assert result == True
         assert error == ''
 
-        splunkClient.requests = self.requests
-
-    def test_validateFailedNotExists(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateFailedNotExists(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.get.return_value = r
@@ -305,12 +298,10 @@ class TestSplunkAPI(unittest.TestCase):
         assert result == False
         assert error == 'Search does not exist!'
 
-        splunkClient.requests = self.requests
-
-    def test_validateFailed404(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateFailed404(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 404
         splunkClient.requests.get.return_value = r
@@ -326,12 +317,10 @@ class TestSplunkAPI(unittest.TestCase):
         ):
             client._validateSearch(searchName='test', app='test', searchConfig=VALID_SCONFIG)
 
-        splunkClient.requests = self.requests
-
-    def test_validateFailedDiffName(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateFailedDiffName(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.get.return_value = r
@@ -347,12 +336,10 @@ class TestSplunkAPI(unittest.TestCase):
         assert result == False
         assert error == 'Search name does not match!'
 
-        splunkClient.requests = self.requests
-
-    def test_validateFailedDiffValue(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateFailedDiffValue(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.get.return_value = r
@@ -367,12 +354,10 @@ class TestSplunkAPI(unittest.TestCase):
         assert result == False
         assert error == "Validation of search 'test' in app 'test' failed! Field description has unexpected value Test (expected Something else)."
 
-        splunkClient.requests = self.requests
-
-    def test_validateFailedDeploy(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_validateFailedDeploy(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.post.return_value = r
@@ -389,12 +374,10 @@ class TestSplunkAPI(unittest.TestCase):
         ):
             client.deploySearch(searchName='test', app='test', searchConfig=VALID_SCONFIG)
 
-        splunkClient.requests = self.requests
-
-    def test_listSearchesSuccess(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_listSearchesSuccess(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.get.return_value = r
@@ -406,12 +389,10 @@ class TestSplunkAPI(unittest.TestCase):
         result = client.listSearches(app='test')
         assert result == ['test']
 
-        splunkClient.requests = self.requests
-
-    def test_listSearchesFail(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_listSearchesFail(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 404
         splunkClient.requests.get.return_value = r
@@ -426,12 +407,10 @@ class TestSplunkAPI(unittest.TestCase):
         ):
             client.listSearches(app='test')
 
-        splunkClient.requests = self.requests
-
-    def test_deleteSearchSuccess(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_deleteSearchSuccess(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 200
         splunkClient.requests.delete.return_value = r
@@ -443,12 +422,10 @@ class TestSplunkAPI(unittest.TestCase):
         result = client.deleteSearch(app='test', searchName='test')
         assert result == None
 
-        splunkClient.requests = self.requests
-
-    def test_deleteSearchFail(self):
-        SplunkClient.__init__ = MagicMock(return_value=None)
-        self.requests = splunkClient.requests
-        splunkClient.requests = MagicMock()
+    @patch.object(splunkClient, 'requests')
+    @patch.object(splunkClient.SplunkClient, '__init__')
+    def test_deleteSearchFail(self, mk_init, mk_req):
+        mk_init.return_value = None
         r = self.SplunkResponse
         r.status_code = 404
         splunkClient.requests.delete.return_value = r
@@ -461,5 +438,3 @@ class TestSplunkAPI(unittest.TestCase):
             (SplunkUpdateFailed)
         ):
             client.deleteSearch(app='test', searchName='test')
-
-        splunkClient.requests = self.requests
